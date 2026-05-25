@@ -21,17 +21,19 @@ import Open.Map.Background;
 import Open.Upgrades.Upgrades;
 import Open.Weapons.WeaponProjectile.WeaponEntity;
 import States.BaseState;
-import States.ControlsState;
 import States.DeadState;
 import States.MenuState;
 import States.OpenState;
 import States.PauseState;
+import States.TutorialState;
 import States.UpgradeState;
 import States.WeaponSelectionState;
 
 public class GameObject {
 
 	private MouseInput mouseHandler;
+	
+	private Camera cam;
 
 	private int startButtonWidth;
 	private int startButtonHeight;
@@ -50,7 +52,7 @@ public class GameObject {
 	private Player player;
 
 	private BaseState state;
-	private ControlsState stateControl;
+	private TutorialState stateTutorial;
 	private DeadState stateDead;
 	private MenuState stateMenu;
 	private OpenState stateOpen;
@@ -78,17 +80,19 @@ public class GameObject {
 
 		this.keyH = keyH;
 
-		stateControl = new ControlsState(this);
+		stateTutorial = new TutorialState(this);
 		stateDead = new DeadState(this);
-		stateMenu = new MenuState(this);
+		setStateMenu(new MenuState(this));
 		stateOpen = new OpenState(this);
 		stateUpgrade = new UpgradeState(this);
 		weaponSelectState = new WeaponSelectionState(this);
 		setStatePause(new PauseState(this));
 		
+		setCam(new Camera(this));
+		
 
 		this.mouseHandler = mouseHandler;
-		state = stateMenu;
+		state = getStateMenu();
 
 		startButtonWidth = 300;
 		startButtonHeight = 100;
@@ -105,7 +109,7 @@ public class GameObject {
 
 		setControlButton(new GameButton(AppPanel.WIDTH / 2 - startButtonWidth / 2,
 				AppPanel.HEIGHT / 2 - controlButtonWidth / 2 + 230 + controlButtonHeight / 2, controlButtonWidth,
-				controlButtonHeight, "CONTROLS", this::showControls, new Color(0, 60, 60), Color.BLACK));
+				controlButtonHeight, "TUTORIAL", this::showTutorial, new Color(0, 60, 60), Color.BLACK));
 
 		setExitControlButton(new GameButton(AppPanel.WIDTH / 2 - exitControlButtonWidth / 2,
 				AppPanel.HEIGHT / 2 + exitControlButtonHeight / 2 + 50, exitControlButtonWidth, exitControlButtonHeight,
@@ -119,6 +123,7 @@ public class GameObject {
 		if (notificationManager != null) {
 			notificationManager.update();
 		}
+		
 	}
 
 	public void draw(Graphics2D g2) {
@@ -233,19 +238,19 @@ public class GameObject {
 	}
 
 	public int getCameraX() {
-		return player.getX() - AppPanel.WIDTH / 2;
+		return (int) getCam().getPos().getX();
 	}
 
 	public int getCameraY() {
-		return player.getY() - AppPanel.HEIGHT / 2;
+		return (int) getCam().getPos().getY();
 	}
 
-	private void showControls() {
-		state = stateControl;
+	private void showTutorial() {
+		state = stateTutorial;
 	}
 
 	private void toMenu() {
-		state = stateMenu;
+		state = getStateMenu();
 	}
 
 	private void startUpgrades() {
@@ -444,5 +449,21 @@ public class GameObject {
 		if (notificationManager != null) {
 			notificationManager.addNotification(artifact);
 		}
+	}
+
+	public Camera getCam() {
+		return cam;
+	}
+
+	public void setCam(Camera cam) {
+		this.cam = cam;
+	}
+
+	public MenuState getStateMenu() {
+		return stateMenu;
+	}
+
+	public void setStateMenu(MenuState stateMenu) {
+		this.stateMenu = stateMenu;
 	}
 }

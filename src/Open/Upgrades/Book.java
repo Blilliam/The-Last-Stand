@@ -37,7 +37,7 @@ public class Book {
                 return values[index];
             }
             case "Size Book": {
-                return r.sizeIncrease * 100;
+                return r.sizeIncrease * 200;
             }
             case "Quantity Over Quality Book": {
                 return r.flatBonus;

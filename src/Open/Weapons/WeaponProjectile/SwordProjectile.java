@@ -99,8 +99,8 @@ public class SwordProjectile extends WeaponEntity {
 	public void draw(Graphics2D g) {
 		drawImpact(g);
 
-		int screenX = AppPanel.WIDTH / 2;
-		int screenY = AppPanel.HEIGHT / 2;
+		int screenX = x - gameObj.getCameraX();
+		int screenY = y - gameObj.getCameraY();
 
 		AffineTransform oldTransform = g.getTransform();
 		g.translate(screenX, screenY);

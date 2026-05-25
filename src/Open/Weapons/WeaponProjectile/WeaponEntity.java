@@ -105,8 +105,8 @@ public abstract class WeaponEntity extends Entity {
 	public void draw(Graphics2D g) {
 		drawImpact(g);
 
-		int screenX = x - gameObj.getPlayer().getX() + AppPanel.WIDTH / 2;
-		int screenY = y - gameObj.getPlayer().getY() + AppPanel.HEIGHT / 2;
+		int screenX = x - gameObj.getCameraX();
+		int screenY = y - gameObj.getCameraY();
 
 		AffineTransform old = g.getTransform();
 		g.translate(screenX, screenY);
@@ -117,8 +117,8 @@ public abstract class WeaponEntity extends Entity {
 
 	protected void drawImpact(Graphics2D g) {
 		if (drawingImpact) {
-			int ix = impactX - gameObj.getPlayer().getX() + AppPanel.WIDTH / 2 - impactWidth / 2;
-			int iy = impactY - gameObj.getPlayer().getY() + AppPanel.HEIGHT / 2 - impactHeight / 2;
+			int ix = impactX - gameObj.getCameraX() - impactWidth / 2;
+			int iy = impactY - gameObj.getCameraY() - impactHeight / 2;
 			g.drawImage(impactAnim.getFrame(), ix, iy, impactWidth, impactHeight, null);
 			impactAnim.update();
 			if (impactAnim.getCurrentFrameIndex() == impactAnim.getFrameLength() - 1) {

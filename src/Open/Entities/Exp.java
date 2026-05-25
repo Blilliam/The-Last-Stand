@@ -69,7 +69,7 @@ public class Exp extends Entity {
 			gameObj.getPlayer().addExp(value);
 			isDead = true;
 		}
-		((Ellipse2D) this.getHitBox()).setFrame(this.x - width/2, this.y - height/2, this.width, this.height);
+		((Ellipse2D) this.getHitBox()).setFrame(this.x - width / 2, this.y - height / 2, this.width, this.height);
 
 		expAnimation.update();
 	}

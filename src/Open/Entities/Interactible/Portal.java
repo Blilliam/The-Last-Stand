@@ -9,7 +9,7 @@ import Open.Map.Background;
 import main.GameObject;
 import main.enums.ChestState;
 
-public class Portal extends Interactible{
+public class Portal extends Interactible {
 
 	public Portal(GameObject gameObj, int x, int y) {
 		super(gameObj, x, y);
@@ -24,7 +24,7 @@ public class Portal extends Interactible{
 		System.out.println("teleop");
 		gameObj.nextMap();
 		setState(ChestState.OPEN);
-		
+
 	}
 
 	@Override
@@ -36,10 +36,10 @@ public class Portal extends Interactible{
 	public void draw(Graphics2D g) {
 		int drawX = x - gameObj.getCameraX();
 		int drawY = y - gameObj.getCameraY();
-		
+
 		g.setColor(Color.blue);
 		g.fillOval(drawX, drawY, width, height);
-		
+
 	}
 
 }

@@ -81,16 +81,16 @@ public class AuraProjectile extends WeaponEntity {
 	public void draw(Graphics2D g) {
 		drawImpact(g);
 
-		int centerX = AppPanel.WIDTH / 2;
-		int centerY = AppPanel.HEIGHT / 2;
+		int screenX = (int) position.getX() - gameObj.getCameraX();
+		int screenY = (int) position.getY() - gameObj.getCameraY();
 
 		g.setColor(Color.BLUE);
 		for (int i = 0; i < 5; i++) {
 			double scale = Math.pow(0.6, i);
 			int w = (int) (width * scale);
 			int h = (int) (height * scale);
-			int drawX = centerX - w / 2;
-			int drawY = centerY - h / 2;
+			int drawX = screenX - w / 2;
+			int drawY = screenY - h / 2;
 			g.drawOval(drawX, drawY, w, h);
 		}
 	}

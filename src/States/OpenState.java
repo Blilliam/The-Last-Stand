@@ -1,15 +1,17 @@
 package States;
 
 import java.awt.Graphics2D;
+import java.util.ArrayList;
+import java.util.Comparator;
 
 import Open.Artifacts.WorldItem;
 import Open.Entities.Exp;
 import Open.Entities.Enemies.Enemy;
-import Open.Entities.Interactible.Chest;
 import Open.Entities.Interactible.Interactible;
 import Open.Weapons.WeaponProjectile.WeaponEntity;
 import main.DamageText;
 import main.GameObject;
+import main.Renderable;
 import main.ScoreManager;
 
 public class OpenState extends BaseState {
@@ -23,52 +25,64 @@ public class OpenState extends BaseState {
 	public void draw(Graphics2D g2) {
 		gameObj.getMap().draw(g2); // draw map
 
-		
-		
+		ArrayList<Renderable> entities = new ArrayList<Renderable>();
+
 		for (int i = 0; i < gameObj.getInteractibles().size(); i++) {
 			Interactible e = gameObj.getInteractibles().get(i);
 			if (gameObj.isOnScreen(e.getX(), e.getY(), e.getWidth(), e.getHeight())) {
-				e.draw(g2); // draw every enemy
-				//e.drawHitBox(g2);
+				// e.draw(g2); // draw every enemy
+				// e.drawHitBox(g2);
+				entities.add(e);
 			}
 		}
 		for (int i = 0; i < gameObj.getEnemies().size(); i++) {
 			Enemy e = gameObj.getEnemies().get(i);
 			if (gameObj.isOnScreen(e.getX(), e.getY(), e.getWidth(), e.getHeight())) {
-				e.draw(g2); // draw every enemy
+				// e.draw(g2); // draw every enemy
 				// e.drawHitBox(g2);
+				entities.add(e);
 			}
 		}
 		for (int i = 0; i < gameObj.getExp().size(); i++) {
 			Exp e = gameObj.getExp().get(i);
 			if (gameObj.isOnScreen(e.getX(), e.getY(), e.getWidth(), e.getHeight())) {
-				e.draw(g2);
+				// e.draw(g2);
 				// e.drawHitBox(g2);
+				entities.add(e);
 			}
 		}
-	
+
 		for (int i = 0; i < gameObj.getProjectiles().size(); i++) {
 			WeaponEntity e = gameObj.getProjectiles().get(i);
 			if (gameObj.isOnScreen(e.getX(), e.getY(), e.getWidth(), e.getHeight())) {
-				e.draw(g2); // draw every enemy
-				//e.drawHitBox(g2);
+				// e.draw(g2); // draw every enemy
+				// e.drawHitBox(g2);
+				entities.add(e);
 			}
 		}
 		for (int i = 0; i < gameObj.getGroundItems().size(); i++) {
 			WorldItem e = gameObj.getGroundItems().get(i);
 			if (gameObj.isOnScreen(e.getX(), e.getY(), e.getWidth(), e.getHeight())) {
-				e.draw(g2); // draw every enemy
+				// e.draw(g2); // draw every enemy
 				// e.drawHitBox(g2);
+				entities.add(e);
 			}
 		}
+
+		entities.add(gameObj.getPlayer());
+
+		entities.sort(Comparator.comparingDouble(Renderable::getSort));
+		
+		for (int i = 0; i < entities.size(); i++) {
+			entities.get(i).draw(g2);
+		}
+
 		for (int i = 0; i < gameObj.getDamageTexts().size(); i++) {
 			DamageText e = gameObj.getDamageTexts().get(i);
 			e.draw(g2, gameObj.getCameraX(), gameObj.getCameraY()); // draw every enemy
 
 		}
-		gameObj.getPlayer().draw(g2); // draw player
-		//gameObj.getPlayer().drawHitBox(g2);
-		
+
 		// Draw artifact notifications at the bottom
 		if (gameObj.getNotificationManager() != null) {
 			gameObj.getNotificationManager().draw(g2);
@@ -134,11 +148,13 @@ public class OpenState extends BaseState {
 		}
 
 		gameObj.getWaves().update(); // update enemy spawning
-		
+
 		if (gameObj.getKeyH().pause) {
 			gameObj.setState(gameObj.getStatePause());
 			gameObj.getKeyH().pause = false;
 		}
+
+		gameObj.getCam().update();
 
 	}
 

@@ -221,6 +221,19 @@ public class Player extends Entity {
 			x += dx * speed;
 			y += dy * speed;
 		}
+		
+		if (x < 0) {
+			x = width/2;
+		}
+		if (gameObj.getMap().HEIGHT < y) {
+			y = gameObj.getMap().HEIGHT - height/2;
+		}
+		if (gameObj.getMap().WIDTH < x) {
+			x = gameObj.getMap().WIDTH - width/2;
+		}
+		if (y < 0) {
+			y = height/2;
+		}
 	}
 
 	// =========================================================================
@@ -273,8 +286,8 @@ public class Player extends Entity {
 
 	@Override
 	public void draw(Graphics2D g2) {
-		int screenX = (AppPanel.WIDTH / 2) - (width / 2);
-		int screenY = (AppPanel.HEIGHT / 2) - (height / 2);
+		int screenX = x - gameObj.getCameraX() - (width / 2);
+		int screenY = y - gameObj.getCameraY() - (height / 2);
 
 		int visualW = (int) (width * 1.5);
 		int visualH = (int) (height * 1.5);
@@ -720,7 +733,10 @@ public class Player extends Entity {
 	public Map<String, Book> getOwnedBooks() {
 		return ownedBooks;
 	}
-
+	@Override
+	public int getSort() {
+		return (int) (y + (height * 1.5));
+	}
 	public int getMAX_BOOKS() {
 		return MAX_BOOKS;
 	}

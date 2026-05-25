@@ -76,8 +76,8 @@ public class BouncingProjectile extends WeaponEntity {
 	public void draw(Graphics2D g) {
 		drawImpact(g);
 
-		int screenX = x - gameObj.getPlayer().getX() + AppPanel.WIDTH / 2;
-		int screenY = y - gameObj.getPlayer().getY() + AppPanel.HEIGHT / 2;
+		int screenX = x - gameObj.getCameraX();
+		int screenY = y - gameObj.getCameraY();
 
 		AffineTransform old = g.getTransform();
 		g.translate(screenX, screenY);

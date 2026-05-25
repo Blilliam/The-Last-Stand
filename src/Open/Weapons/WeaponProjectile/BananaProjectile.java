@@ -60,8 +60,8 @@ public class BananaProjectile extends WeaponEntity {
 	public void draw(Graphics2D g) {
 		drawImpact(g);
 
-		int screenX = x - gameObj.getPlayer().getX() + AppPanel.WIDTH / 2 - width / 2;
-		int screenY = y - gameObj.getPlayer().getY() + AppPanel.HEIGHT / 2 - height / 2;
+		int screenX = x - gameObj.getCameraX() - width / 2;
+		int screenY = y - gameObj.getCameraY() - height / 2;
 
 		AffineTransform old = g.getTransform();
 		g.rotate(angle, screenX + width / 2.0, screenY + height / 2.0);

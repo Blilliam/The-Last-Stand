@@ -7,8 +7,9 @@ import java.awt.geom.AffineTransform;
 import java.awt.geom.Area;
 
 import main.GameObject;
+import main.Renderable;
 
-public abstract class Entity { // main parent class of all moving objects on screen (weapon effects, player,
+public abstract class Entity implements Renderable{ // main parent class of all moving objects on screen (weapon effects, player,
 								// enemies)
 
 	protected int x, y; // world coordinates
@@ -32,13 +33,17 @@ public abstract class Entity { // main parent class of all moving objects on scr
 	public Entity(GameObject gameObj) {
 		this.gameObj = gameObj;
 	}
+	
+	public int getSort() {
+		return y + height;
+	}
 
 	// abscract/required methods to be an entity
 	public abstract void update();
 
 	// Draw relative to player
 	public abstract void draw(Graphics2D g);
-	
+
 	public void drawHitBox(Graphics2D g) {
 		AffineTransform oldTransform = g.getTransform();
 
@@ -165,6 +170,7 @@ public abstract class Entity { // main parent class of all moving objects on scr
 	public void setMaxHp(int maxHp) {
 		this.maxHp = maxHp;
 	}
+
 	public void addHp(int hp) {
 		currHp += hp;
 	}
