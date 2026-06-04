@@ -23,7 +23,15 @@ public class Portal extends Interactible {
 	public void open() {
 		gameObj.nextMap();
 		setState(ChestState.OPEN);
-
+		gameObj.getPlayer().setGold(0);
+		
+		float[][] newFog = new float[gameObj.getPlayer().getFogResolution()][gameObj.getPlayer().getFogResolution()];
+		for (int i = 0; i < newFog.length; i++) {
+			for (int j = 0; j < newFog[i].length; j++) {
+				newFog[i][j] = 1.0f; // Fully opaque
+			}
+		}
+		gameObj.getPlayer().setFogMap(newFog);
 	}
 
 	@Override

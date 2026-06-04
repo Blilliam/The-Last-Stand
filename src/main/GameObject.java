@@ -73,7 +73,7 @@ public class GameObject {
 	private ArrayList<Exp> exp;
 	private ArrayList<WeaponEntity> projectiles;
 	private ArrayList<Tree> trees;
-	
+
 	private Difficulty difficulty = Difficulty.NORMAL;
 
 	private Upgrades upgrades;
@@ -85,7 +85,7 @@ public class GameObject {
 	private BufferedImage lastFrame;
 
 	private MusicManager musicManager;
-	
+
 	private int chestsOpened = 0;
 
 	public GameObject(KeyboardInput keyH, MouseInput mouseHandler) {
@@ -146,9 +146,10 @@ public class GameObject {
 		state.draw(g2);
 	}
 
-	// Core initializer for a fresh game. Kept private and invoked by startGameWithDifficulty.
+	// Core initializer for a fresh game. Kept private and invoked by
+	// startGameWithDifficulty.
 	private void startGameCore() {
-		chestsOpened = 0;  // Reset chest counter for new game
+		chestsOpened = 0; // Reset chest counter for new game
 		enemies = new ArrayList<>();
 		groundItems = new ArrayList<>();
 		exp = new ArrayList<>();
@@ -158,8 +159,7 @@ public class GameObject {
 		setTrees(new ArrayList<>(50));
 
 		map = new Background(this);
-	
-		
+
 		player = new Player(this);
 		cam = new Camera(this);
 		upgrades = new Upgrades(this);
@@ -205,7 +205,8 @@ public class GameObject {
 
 		int totalItems = 50;
 
-		// Minimum distance between spawned interactibles (pixels). Scales with map size.
+		// Minimum distance between spawned interactibles (pixels). Scales with map
+		// size.
 		int minDistance = Math.max(80, Math.min(mapWidth, mapHeight) / 10);
 		int minDistanceSq = minDistance * minDistance;
 
@@ -234,7 +235,8 @@ public class GameObject {
 				attempts++;
 			}
 
-			// If we failed to find a spaced position after many attempts, just use last candidate
+			// If we failed to find a spaced position after many attempts, just use last
+			// candidate
 			if (!placed) {
 				usedPositions.add(new Point(spawnX, spawnY));
 			}
@@ -264,20 +266,30 @@ public class GameObject {
 		int screenTop = camY;
 		int screenBottom = camY + AppPanel.HEIGHT;
 
-		if (objRight < screenLeft)   return false;
-		if (objLeft > screenRight)   return false;
-		if (objBottom < screenTop)   return false;
-		if (objTop > screenBottom)   return false;
+		if (objRight < screenLeft)
+			return false;
+		if (objLeft > screenRight)
+			return false;
+		if (objBottom < screenTop)
+			return false;
+		if (objTop > screenBottom)
+			return false;
 
 		return true;
 	}
+
 	public void nextMap() {
 		pixelTransition.start(lastFrame, () -> {
-			for (Entity e : enemies)        e.setDead(true);
-			for (Entity e : exp)            e.setDead(true);
-			for (Entity e : interactibles)  e.setDead(true);
-			for (Entity e : projectiles)    e.setDead(true);
-			for (Entity e : groundItems)    e.setDead(true);
+			for (Entity e : enemies)
+				e.setDead(true);
+			for (Entity e : exp)
+				e.setDead(true);
+			for (Entity e : interactibles)
+				e.setDead(true);
+			for (Entity e : projectiles)
+				e.setDead(true);
+			for (Entity e : groundItems)
+				e.setDead(true);
 
 			map.nextMap();
 			generateInteractibles();
@@ -315,6 +327,7 @@ public class GameObject {
 	private void showDifficulty() {
 		state = getStateDifficulty();
 	}
+
 	private void toMenu() {
 		musicManager.playBGM();
 		state = getStateMenu();
@@ -534,16 +547,16 @@ public class GameObject {
 		this.stateMenu = stateMenu;
 	}
 
-	public States.DifficultyState getStateDifficulty() {
+	public DifficultyState getStateDifficulty() {
 		return stateDifficulty;
 	}
 
-	public void setStateDifficulty(States.DifficultyState stateDifficulty) {
+	public void setStateDifficulty(DifficultyState stateDifficulty) {
 		this.stateDifficulty = stateDifficulty;
 	}
 
-	public String getDifficulty() {
-		return difficulty.toString();
+	public Difficulty getDifficulty() {
+		return difficulty;
 	}
 
 	public void setDifficulty(String difficulty) {
@@ -565,11 +578,11 @@ public class GameObject {
 	public MusicManager getMusicManager() {
 		return musicManager;
 	}
-	
+
 	public int getChestsOpened() {
 		return chestsOpened;
 	}
-	
+
 	public void incrementChestsOpened() {
 		this.chestsOpened++;
 	}

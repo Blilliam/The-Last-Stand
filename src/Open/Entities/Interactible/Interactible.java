@@ -41,7 +41,7 @@ public abstract class Interactible extends Entity{
 	        }
 	    }
 	    protected double getCostMultiplier() {
-			return Math.pow(gameObj.getMap().getStage(), 2) * Math.pow(1.25, gameObj.getChestsOpened());
+			return Math.pow(gameObj.getMap().getStage(), 2) * Math.pow(1.2, gameObj.getChestsOpened());
 		}
 	    
 	    public abstract void open();

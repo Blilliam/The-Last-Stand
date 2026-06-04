@@ -67,7 +67,7 @@ public class Player extends Entity {
 	public Player(GameObject gameObj) {
 		super(gameObj);
 		setArtifactManager(new ArtifactManager(gameObj));
-		artifactManager.addArtifact(new Magnet(gameObj));
+		//artifactManager.addArtifact(new Magnet(gameObj));
 //		artifactManager.addArtifact(new Anvil(gameObj));
 
 //		for (int i = 0; i < 300; i++) {
@@ -77,10 +77,10 @@ public class Player extends Entity {
 
 		weapons = new EnumMap<WeaponTypes, Weapon>(WeaponTypes.class);
 		
-		fogMap = new float[fogResolution][fogResolution];
-		for (int i = 0; i < fogResolution; i ++) {
-			for (int j = 0; j < fogResolution; j++) {
-				fogMap[i][j] = 1.0f;
+		setFogMap(new float[getFogResolution()][getFogResolution()]);
+		for (int i = 0; i < getFogResolution(); i ++) {
+			for (int j = 0; j < getFogResolution(); j++) {
+				getFogMap()[i][j] = 1.0f;
 			}
 		}
 
@@ -117,10 +117,10 @@ public class Player extends Entity {
 	// =========================================================================
 
 	public void updateMap() {
-		for (int i = 0; i < fogResolution; i++) {
-			for (int j = 0; j < fogResolution; j++) {
-				double tileX = (j + 0.5) * gameObj.getMap().WIDTH/fogResolution;
-				double tileY = (i +0.5) * gameObj.getMap().HEIGHT/fogResolution;
+		for (int i = 0; i < getFogResolution(); i++) {
+			for (int j = 0; j < getFogResolution(); j++) {
+				double tileX = (j + 0.5) * gameObj.getMap().WIDTH/getFogResolution();
+				double tileY = (i +0.5) * gameObj.getMap().HEIGHT/getFogResolution();
 
 				double dx = tileX - x;
 				double dy = tileY - y;
@@ -133,8 +133,8 @@ public class Player extends Entity {
 					a *= a * a;
 					
 				}
-				a = Math.min(a, fogMap[i][j]);
-				fogMap[i][j] = a;
+				a = Math.min(a, getFogMap()[i][j]);
+				getFogMap()[i][j] = a;
 			}
 		}
 	}
@@ -973,11 +973,11 @@ public class Player extends Entity {
 	}
 	
 	public void drawMiniMapFog(Graphics2D g, int mapX, int mapY, int mapW, int mapH) {
-		double scale = mapW/fogResolution;
+		double scale = mapW/getFogResolution();
 		
-		for (int row = 0; row < fogResolution; row++) {
-			for (int col = 0; col < fogResolution; col++) {
-				g.setColor(new Color(0f, 0f, 0f, fogMap[row][col]));
+		for (int row = 0; row < getFogResolution(); row++) {
+			for (int col = 0; col < getFogResolution(); col++) {
+				g.setColor(new Color(0f, 0f, 0f, getFogMap()[row][col]));
 				g.fillRect((int) (mapX + col * scale), mapY + (int) (row * scale), (int) (scale), (int) (scale));
 			}
 		}
@@ -1135,5 +1135,21 @@ public class Player extends Entity {
 
 	public void setArtifactManager(ArtifactManager am) {
 		this.artifactManager = am;
+	}
+
+	public float[][] getFogMap() {
+		return fogMap;
+	}
+
+	public void setFogMap(float fogMap[][]) {
+		this.fogMap = fogMap;
+	}
+
+	public int getFogResolution() {
+		return fogResolution;
+	}
+
+	public void setFogResolution(int fogResolution) {
+		this.fogResolution = fogResolution;
 	}
 }
