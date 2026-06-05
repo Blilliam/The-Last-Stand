@@ -56,6 +56,10 @@ public class Teleporter extends Interactible {
 		updateInteract();
 
 		if (bossIsDefeated) {
+			if (gameObj.getMap().getStage() == 3) {
+				gameObj.getPlayer().startTimer();
+				return;
+			}
 			gameObj.getInteractibles().add(new Portal(gameObj, x, y - 100));
 			bossIsDefeated = false;
 		}

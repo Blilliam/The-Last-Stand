@@ -1,4 +1,4 @@
- package Open.Upgrades;
+package Open.Upgrades;
 
 import java.awt.*;
 import java.awt.image.BufferedImage;
@@ -33,7 +33,7 @@ public class Upgrades {
 	private static final float BOOK_CHANCE = 0.50f;
 
 	private final String[] bookPool = { "EXP Book", "Size Book", "Quantity Book", "Projectile Speed Book",
-	        "Crit Rate Book", "Max HP Book", "Gold Book", "Damage Book", "Cooldown Book" };
+			"Crit Rate Book", "Max HP Book", "Gold Book", "Damage Book", "Cooldown Book" };
 
 	// ── Reroll state ──────────────────────────────────────────────────────────
 	private GameButton rerollButton;
@@ -59,15 +59,16 @@ public class Upgrades {
 	// =========================================================================
 
 	private int getRerollCost() {
-		int base = (int) (Open.Entities.Interactible.Chest.BASE_COST / 2.0
-				* Math.pow(gameObj.getMap().getStage(), 2));
+		int base = (int) (Open.Entities.Interactible.Chest.BASE_COST / 2.0 * Math.pow(gameObj.getMap().getStage(), 2));
 		return (int) (base * Math.pow(1.5, rerollCount));
 	}
 
 	private void tryReroll() {
-		if (rerollCount >= MAX_REROLLS) return;
+		if (rerollCount >= MAX_REROLLS)
+			return;
 		int cost = getRerollCost();
-		if (gameObj.getPlayer().getGold() < cost) return;
+		if (gameObj.getPlayer().getGold() < cost)
+			return;
 		gameObj.getPlayer().setGold(gameObj.getPlayer().getGold() - cost);
 		rerollCount++;
 		isRerolling = true;
@@ -79,18 +80,13 @@ public class Upgrades {
 		boolean maxed = rerollCount >= MAX_REROLLS;
 		boolean canAfford = !maxed && gameObj.getPlayer().getGold() >= getRerollCost();
 
-		String label = maxed ? "NO REROLLS LEFT" : "REROLL   $" + getRerollCost()
-				+ "  (" + (MAX_REROLLS - rerollCount) + " left)";
+		String label = maxed ? "NO REROLLS LEFT"
+				: "REROLL   $" + getRerollCost() + "  (" + (MAX_REROLLS - rerollCount) + " left)";
 
 		Color bg = canAfford ? new Color(80, 40, 0) : new Color(40, 40, 40);
 		Color border = canAfford ? Color.ORANGE : Color.GRAY;
 
-		rerollButton = new GameButton(
-				AppPanel.WIDTH / 2 - 200,
-				AppPanel.HEIGHT - 110,
-				400, 65,
-				label,
-				this::tryReroll,
+		rerollButton = new GameButton(AppPanel.WIDTH / 2 - 200, AppPanel.HEIGHT - 110, 400, 65, label, this::tryReroll,
 				bg, border);
 	}
 
@@ -269,7 +265,8 @@ public class Upgrades {
 		// Boxes
 		for (int i = 0; i < boxes.length; i++) {
 			GameButton b = boxes[i];
-			if (b == null) continue;
+			if (b == null)
+				continue;
 
 			Color baseColor = getSlotColor(i);
 			drawBoxBackground(g, b, baseColor);
@@ -355,13 +352,19 @@ public class Upgrades {
 	}
 
 	private Color getRarityColor(WeaponRarity rarity) {
-		if (rarity == null) return new Color(100, 100, 100);
+		if (rarity == null)
+			return new Color(100, 100, 100);
 		switch (rarity) {
-		case BRONZE:  return new Color(140, 70, 30);
-		case SILVER:  return new Color(160, 165, 175);
-		case GOLD:    return new Color(210, 170, 0);
-		case DIAMOND: return new Color(0, 180, 220);
-		default:      return new Color(80, 80, 80);
+		case BRONZE:
+			return new Color(140, 70, 30);
+		case SILVER:
+			return new Color(160, 165, 175);
+		case GOLD:
+			return new Color(210, 170, 0);
+		case DIAMOND:
+			return new Color(0, 180, 220);
+		default:
+			return new Color(80, 80, 80);
 		}
 	}
 
@@ -384,7 +387,7 @@ public class Upgrades {
 		case "Max HP Book":
 			return String.format("+%.0f HP", val);
 		case "Quantity Book":
-			return String.format("+%.1f projectiles", val);
+			return String.format("+%.1f", val);
 		default:
 			return String.format("%.1f", val);
 		}
@@ -392,17 +395,28 @@ public class Upgrades {
 
 	private BufferedImage getIconForBook(String name) {
 		switch (name) {
-		case "Gold Book":               return Assets.GoldTomeIcon;
-		case "Max HP Book":             return Assets.HpTomeIcon;
-		case "Luck Book":               return Assets.LuckTomeIcon;
-		case "Crit Rate Book":          return Assets.CritTomeIcon;
-		case "Projectile Speed Book":   return Assets.ProjectileSpeedTomeIcon;
-		case "Quantity Book":           return Assets.ProjectileCountTomeIcon;
-		case "Size Book":               return Assets.SizeTomeIcon;
-		case "EXP Book":                return Assets.XpTomeIcon;
-		case "Cooldown Book":           return Assets.CooldownTomeIcon;
-		case "Damage Book":             return Assets.DamageTomeIcon;
-		default:                        return Assets.CursedTomeIcon;
+		case "Gold Book":
+			return Assets.GoldTomeIcon;
+		case "Max HP Book":
+			return Assets.HpTomeIcon;
+		case "Luck Book":
+			return Assets.LuckTomeIcon;
+		case "Crit Rate Book":
+			return Assets.CritTomeIcon;
+		case "Projectile Speed Book":
+			return Assets.ProjectileSpeedTomeIcon;
+		case "Quantity Book":
+			return Assets.ProjectileCountTomeIcon;
+		case "Size Book":
+			return Assets.SizeTomeIcon;
+		case "EXP Book":
+			return Assets.XpTomeIcon;
+		case "Cooldown Book":
+			return Assets.CooldownTomeIcon;
+		case "Damage Book":
+			return Assets.DamageTomeIcon;
+		default:
+			return Assets.CursedTomeIcon;
 		}
 	}
 
@@ -429,10 +443,18 @@ public class Upgrades {
 		case AttackSpeed: {
 			double red;
 			switch (rarity) {
-			case SILVER:  red = 0.05; break;
-			case GOLD:    red = 0.08; break;
-			case DIAMOND: red = 0.12; break;
-			default:      red = 0.03; break;
+			case SILVER:
+				red = 0.05;
+				break;
+			case GOLD:
+				red = 0.08;
+				break;
+			case DIAMOND:
+				red = 0.12;
+				break;
+			default:
+				red = 0.03;
+				break;
 			}
 			return currentVal * (1.0 - red * anvilMult);
 		}
@@ -451,10 +473,14 @@ public class Upgrades {
 
 	private double rarityMult(WeaponRarity rarity) {
 		switch (rarity) {
-		case SILVER:  return 1.2;
-		case GOLD:    return 1.4;
-		case DIAMOND: return 2.0;
-		default:      return 1.0;
+		case SILVER:
+			return 1.2;
+		case GOLD:
+			return 1.4;
+		case DIAMOND:
+			return 2.0;
+		default:
+			return 1.0;
 		}
 	}
 
@@ -488,15 +514,24 @@ public class Upgrades {
 
 	private String getDisplayName(WeaponUpgrades stat) {
 		switch (stat) {
-		case AttackSpeed:     return "Cooldown";
-		case AttackDamage:    return "Damage";
-		case AttackSize:      return "Area";
-		case ProjectileCount: return "Amount";
-		case ProjectileSpeed: return "Speed";
-		case ProjectileBounce:return "Bounces";
-		case CriticalChance:  return "Crit Rate";
-		case CriticalDamage:  return "Crit Damage";
-		default:              return stat.toString();
+		case AttackSpeed:
+			return "Cooldown";
+		case AttackDamage:
+			return "Damage";
+		case AttackSize:
+			return "Area";
+		case ProjectileCount:
+			return "Amount";
+		case ProjectileSpeed:
+			return "Speed";
+		case ProjectileBounce:
+			return "Bounces";
+		case CriticalChance:
+			return "Crit Rate";
+		case CriticalDamage:
+			return "Crit Damage";
+		default:
+			return stat.toString();
 		}
 	}
 

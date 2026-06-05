@@ -31,6 +31,9 @@ public class playerHud {
 		gameObj.getPlayer().getArtifactManager().draw(g);
 		gameObj.getPlayer().drawGoldCounter(g);
 		gameObj.getPlayer().drawMinimap(g);
+		if (gameObj.getPlayer().getEndTimer() >= 0) {
+			gameObj.getPlayer().drawEndTimer(g);
+		}
 	}
 
 	

@@ -27,6 +27,7 @@ import main.DamageResult;
 import main.GameObject;
 import main.MouseInput;
 import main.enums.ChestState;
+import main.enums.Difficulty;
 import main.enums.WeaponTypes;
 import main.enums.WeaponUpgrades;
 
@@ -61,13 +62,13 @@ public class Player extends Entity {
 	private int frameWidth = 192;
 	private int frameHeight = 192;
 
-
 	private Animation coinAnimation;
+	private int endTimer = -1;
 
 	public Player(GameObject gameObj) {
 		super(gameObj);
 		setArtifactManager(new ArtifactManager(gameObj));
-		//artifactManager.addArtifact(new Magnet(gameObj));
+		// artifactManager.addArtifact(new Magnet(gameObj));
 //		artifactManager.addArtifact(new Anvil(gameObj));
 
 //		for (int i = 0; i < 300; i++) {
@@ -76,9 +77,9 @@ public class Player extends Entity {
 		this.gold = 0;
 
 		weapons = new EnumMap<WeaponTypes, Weapon>(WeaponTypes.class);
-		
+
 		setFogMap(new float[getFogResolution()][getFogResolution()]);
-		for (int i = 0; i < getFogResolution(); i ++) {
+		for (int i = 0; i < getFogResolution(); i++) {
 			for (int j = 0; j < getFogResolution(); j++) {
 				getFogMap()[i][j] = 1.0f;
 			}
@@ -119,26 +120,26 @@ public class Player extends Entity {
 	public void updateMap() {
 		for (int i = 0; i < getFogResolution(); i++) {
 			for (int j = 0; j < getFogResolution(); j++) {
-				double tileX = (j + 0.5) * gameObj.getMap().WIDTH/getFogResolution();
-				double tileY = (i +0.5) * gameObj.getMap().HEIGHT/getFogResolution();
+				double tileX = (j + 0.5) * gameObj.getMap().WIDTH / getFogResolution();
+				double tileY = (i + 0.5) * gameObj.getMap().HEIGHT / getFogResolution();
 
 				double dx = tileX - x;
 				double dy = tileY - y;
 
 				double distance = (int) (Math.sqrt((dx * dx) + (dy * dy)));
-				
+
 				float a = 1.0f;
 				if (distance < fogVisibility) {
-					a = (float) (distance/fogVisibility);
+					a = (float) (distance / fogVisibility);
 					a *= a * a;
-					
+
 				}
 				a = Math.min(a, getFogMap()[i][j]);
 				getFogMap()[i][j] = a;
 			}
 		}
 	}
-	
+
 	public void update() {
 		if (countAfterHit > countBeforeHeal && countAfterHit % 30 == 0) {
 			currHp++;
@@ -172,6 +173,11 @@ public class Player extends Entity {
 			currExp -= expNeededToUpgrade;
 			expNeededToUpgrade = (int) (expNeededToUpgrade * 1.3);
 		}
+
+		if (endTimer >= 0) {
+			endTimer++;
+		}
+
 	}
 
 	// =========================================================================
@@ -241,7 +247,15 @@ public class Player extends Entity {
 	public void addExp(int i) {
 		double artifactBonus = artifactManager.getPercentBonusExp();
 		double bookBonus = getStatBonus("EXP Book") / 100.0;
-		currExp += (int) (i * (1 + artifactBonus + bookBonus));
+		int exp = (int) (i * (1 + artifactBonus + bookBonus));
+		if (gameObj.getDifficulty() == Difficulty.HARD) {
+			exp /= 2;
+			if (exp <= 0)
+				exp = 1;
+		} else if (gameObj.getDifficulty() == Difficulty.EASY) {
+			exp *= 2;
+		}
+		currExp += exp;
 	}
 
 	// =========================================================================
@@ -600,9 +614,11 @@ public class Player extends Entity {
 				{ "EXP Bonus", String.format("+%.0f%%", (artifactExp + bookExp) * 100), expFlag },
 				{ "Gold Bonus", String.format("+%.0f%%", (artifactGold + bookGold) * 100), goldFlag },
 				{ "Free Chest", String.format("%.0f%%", artifactManager.getPercentFreeChest() * 100), freeChestFlag },
-				{ "Exp Drop+", String.format("%.0f%%", expDropChance * 100), dropFlag }, 
-				{ "Chest Mult", String.format("×%.2f", Math.pow(gameObj.getMap().getStage(), 2) * Math.pow(1.25, gameObj.getChestsOpened())), 1 }
-		};
+				{ "Exp Drop+", String.format("%.0f%%", expDropChance * 100), dropFlag },
+				{ "Chest Mult",
+						String.format("×%.2f",
+								Math.pow(gameObj.getMap().getStage(), 2) * Math.pow(1.25, gameObj.getChestsOpened())),
+						1 } };
 
 		// ── Measure total height ──────────────────────────────────────────────
 		int totalH = PADDING;
@@ -971,10 +987,10 @@ public class Player extends Entity {
 		g2.setColor(new Color(255, 255, 255, 255));
 		g2.drawString(text, textX, textY);
 	}
-	
+
 	public void drawMiniMapFog(Graphics2D g, int mapX, int mapY, int mapW, int mapH) {
-		double scale = mapW/getFogResolution();
-		
+		double scale = mapW / getFogResolution();
+
 		for (int row = 0; row < getFogResolution(); row++) {
 			for (int col = 0; col < getFogResolution(); col++) {
 				g.setColor(new Color(0f, 0f, 0f, getFogMap()[row][col]));
@@ -982,7 +998,6 @@ public class Player extends Entity {
 			}
 		}
 	}
-			
 
 	public void drawMinimap(Graphics2D g2) {
 		int mapW = 180, mapH = 180;
@@ -1039,7 +1054,7 @@ public class Player extends Entity {
 			g2.setColor(portalColor);
 			g2.drawRect(ix, iy, 6, 5);
 		}
-		
+
 		drawMiniMapFog(g2, mapX, mapY, mapW, mapH);
 
 		// Player dot
@@ -1093,6 +1108,14 @@ public class Player extends Entity {
 		return ownedBooks;
 	}
 
+	public void startTimer() {
+		this.endTimer = 0;
+	}
+
+	public int getEndTimer() {
+		return endTimer;
+	}
+
 	public int getMAX_BOOKS() {
 		return MAX_BOOKS;
 	}
@@ -1114,7 +1137,15 @@ public class Player extends Entity {
 	}
 
 	public void addGold(int g) {
-		this.gold += g;
+		int gold = (int) (g * (1 + artifactManager.getPercentBonusGold() + getStatBonus("Gold Book") / 100.0));
+		if (gameObj.getDifficulty() == Difficulty.HARD) {
+			gold /= 2;
+			if (gold <= 0)
+				gold = 1;
+		} else if (gameObj.getDifficulty() == Difficulty.EASY) {
+			gold *= 2;
+		}
+		this.gold += gold;
 	}
 
 	public void setGold(int gold) {
@@ -1151,5 +1182,56 @@ public class Player extends Entity {
 
 	public void setFogResolution(int fogResolution) {
 		this.fogResolution = fogResolution;
+	}
+
+	public static String formatTime(int timer) {
+		// Convert timer to milliseconds (60 timer = 1 second = 1000 ms)
+		long totalMs = timer * 1000 / 60;
+		long hours = totalMs / 3600000;
+		long minutes = (totalMs % 3600000) / 60000;
+		long seconds = (totalMs % 60000) / 1000;
+		long milliseconds = totalMs % 1000;
+
+		return String.format("%02d:%02d:%02d:%03d", hours, minutes, seconds, milliseconds);
+	}
+
+	public void drawEndTimer(Graphics2D g2) {
+		String timerDisplay = formatTime(endTimer);
+		int barWidth = 300;
+		int barHeight = 50;
+		int x = (AppPanel.WIDTH - barWidth) / 2;
+		int y = 50;
+
+		// Background panel
+		g2.setColor(new Color(30, 20, 30, 210));
+		g2.fillRoundRect(x - 5, y - 5, barWidth + 10, barHeight + 10, 12, 12);
+		g2.setStroke(new BasicStroke(2f));
+		g2.setColor(new Color(180, 60, 120, 200));
+		g2.drawRoundRect(x - 5, y - 5, barWidth + 10, barHeight + 10, 12, 12);
+
+		// Background bar
+		g2.setColor(new Color(40, 30, 40, 200));
+		g2.fillRoundRect(x, y, barWidth, barHeight, 8, 8);
+
+		// Text
+		g2.setFont(new Font("Monospaced", Font.BOLD, 24));
+		String text = "END: " + timerDisplay + "s";
+		FontMetrics fm = g2.getFontMetrics();
+		int textX = x + (barWidth - fm.stringWidth(text)) / 2;
+		int textY = y + ((barHeight + fm.getAscent()) / 2) - 3;
+
+		// Text shadow
+		g2.setColor(new Color(0, 0, 0, 200));
+		g2.drawString(text, textX + 1, textY + 1);
+
+		// Text color
+		g2.setColor(new Color(255, 100, 200, 255));
+		g2.drawString(text, textX, textY);
+
+		// Border
+		g2.setStroke(new BasicStroke(2f));
+		g2.setColor(new Color(180, 60, 120, 220));
+		g2.drawRoundRect(x, y, barWidth, barHeight, 8, 8);
+		g2.setStroke(new BasicStroke(1f));
 	}
 }

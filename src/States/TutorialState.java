@@ -29,7 +29,7 @@ public class TutorialState extends BaseState {
 		pages = new ArrayList<>();
 
 		// Page 0: Welcome
-		pages.add(new TutorialPage("WELCOME TO VAMPIRE SURVIVORS",
+		pages.add(new TutorialPage("WELCOME TO THE LAST STAND",
 				new String[] {
 						"This is an action roguelike game where you fight endless waves",
 						"of enemies to survive as long as possible.",
@@ -79,7 +79,7 @@ public class TutorialState extends BaseState {
 						"• Unlock a new WEAPON (if you have less than 4)",
 						"• Upgrade an existing weapon's stats",
 						"• Acquire a BOOK (passive bonus)",
-						"",
+						"• All upgrades have rarities but each waepon doesn't have all rarities",
 						"Plan your upgrades carefully for synergy!"
 				}));
 
@@ -122,7 +122,7 @@ public class TutorialState extends BaseState {
 						"CHEST (Gold chest):",
 						"  Contains gold and occasionally artifacts.",
 						"  Approach and press E to open.",
-						"",
+						"  Chest prices scale up as you open more chests!",
 						"SHOP (Tri-colored icon):",
 						"  Trade gold for weapons, books, or artifacts.",
 						"  Buy items strategically to enhance your build.",
