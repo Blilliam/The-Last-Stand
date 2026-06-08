@@ -9,6 +9,7 @@ import java.util.List;
 import java.util.Random;
 
 import Open.Artifacts.WorldItem;
+import Open.Artifacts.Common.TurboSocks;
 import Open.Entities.Entity;
 import Open.Entities.Exp;
 import Open.Entities.Player;
@@ -178,6 +179,77 @@ public class GameObject {
 	public void startGameWithDifficulty(String difficulty) {
 		this.setDifficulty(difficulty);
 		startGameCore();
+	}
+
+	/**
+	 * TESTING METHOD: Setup a scenario simulating ~30 minutes of gameplay on stage 3
+	 * with the player positioned next to the teleporter, ready to fight the boss.
+	 */
+	public void setupTestingScenario() {
+		// Start a normal game first
+		startGameCore();
+		
+		// Immediately transition to stage 3 via pixel transition
+		pixelTransition.start(lastFrame, () -> {
+			// Clear all existing entities
+			for (Entity e : enemies)
+				e.setDead(true);
+			for (Entity e : exp)
+				e.setDead(true);
+			for (Entity e : interactibles)
+				e.setDead(true);
+			for (Entity e : projectiles)
+				e.setDead(true);
+			for (Entity e : groundItems)
+				e.setDead(true);
+			
+			// Set to stage 3
+			map.setStage(2);
+			map.nextMap();
+			generateInteractibles();
+			
+			// Setup player for late-game scenario
+			// 1. Set exp to 10,000 so many upgrades are available
+			player.setCurrExp(1000000);
+			player.setGold(2000);
+			player.addHp(100); // Full HP
+			
+			// 2. Give player random artifacts (5-8 random ones)
+			Random rand = new Random();
+			int numArtifacts = 50; // 5-8 artifacts
+			for (int i = 0; i < numArtifacts; i++) {
+				player.getArtifactManager().addArtifact(
+					player.getArtifactManager().getRandomArtifact()
+				);
+			}
+			player.getArtifactManager().addArtifact(new TurboSocks(this));
+			player.getArtifactManager().addArtifact(new TurboSocks(this));
+			
+			// 3. Simulate 30 minutes of wave progression
+			// 30 minutes = 1800 seconds ≈ 105,882 ticks at 17ms per tick
+			int thirtyMinuteTicks = 10500;
+			waves.setTickCounter(thirtyMinuteTicks);
+			// Increase credit gain rate for late game
+			waves.setCreditGainRate(2.5);
+			waves.setCredits(500); // Give some initial credits for big spawns
+			
+			// 4. Position player near teleporter
+			Teleporter tp = null;
+			for (Interactible interactible : interactibles) {
+				if (interactible instanceof Teleporter) {
+					tp = (Teleporter) interactible;
+					break;
+				}
+			}
+			if (tp != null) {
+				player.setX(tp.getX() - 150);
+				player.setY(tp.getY());
+			}
+		});
+		
+		// Spawn some tough enemies to make it feel like late game
+		// This will happen during the hold phase of the transition
+		state = stateOpen;
 	}
 
 	private void generateInteractibles() {

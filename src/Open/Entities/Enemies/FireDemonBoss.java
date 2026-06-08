@@ -134,13 +134,14 @@ public class FireDemonBoss extends Enemy {
 		}
 
 		animTick += 0.07;
-			int angleInc;
-			if (phase == 2) {
-				angleInc = 5;
-			} else {
-				angleInc = 3;
-			}			wingAngle = (wingAngle + angleInc) % 360;
-		
+		int angleInc;
+		if (phase == 2) {
+			angleInc = 5;
+		} else {
+			angleInc = 3;
+		}
+		wingAngle = (wingAngle + angleInc) % 360;
+
 		flamePulse = (Math.sin(animTick * 2.0) + 1.0) / 2.0;
 
 		// ── Phase check ──────────────────────────────────────────────
@@ -180,11 +181,11 @@ public class FireDemonBoss extends Enemy {
 
 		// ── Projectile volley ────────────────────────────────────────
 		int currentShootRate;
-			if (phase == 2) {
-				currentShootRate = SHOOT_RATE_ENRAGE;
-			} else {
-				currentShootRate = SHOOT_RATE;
-			}
+		if (phase == 2) {
+			currentShootRate = SHOOT_RATE_ENRAGE;
+		} else {
+			currentShootRate = SHOOT_RATE;
+		}
 		shootCooldown++;
 		if (shootCooldown >= currentShootRate) {
 			shootCooldown = 0;
@@ -212,18 +213,19 @@ public class FireDemonBoss extends Enemy {
 	}
 
 	private void spawnFireballVolley() {
-			int count;
-			float size;
-			double speed;
-			if (phase == 2) {
-				count = FIREBALL_COUNT + 2;
-				size = 18f;
-				speed = 4.5;
-			} else {
-				count = FIREBALL_COUNT;
-				size = 14f;
-				speed = 3.5;
-			}
+		int count;
+		float size;
+		double speed;
+		if (phase == 2) {
+			count = FIREBALL_COUNT + 2;
+			size = 18f;
+			speed = 4.5;
+		} else {
+			count = FIREBALL_COUNT;
+			size = 14f;
+			speed = 3.5;
+		}
+		speed = (int) (speed * (1.0 + (gameObj.getWaves().getDifficultyMult() - 1.0) * 0.2));
 		// Spread fireballs evenly around a circle
 		for (int i = 0; i < count; i++) {
 			double angle = (2 * Math.PI / count) * i;
@@ -339,11 +341,11 @@ public class FireDemonBoss extends Enemy {
 	private void drawWings(Graphics2D g, int cx, int cy) {
 		double flapOffset = Math.sin(Math.toRadians(wingAngle)) * 18;
 		Color wingColor;
-			if (phase == 2) {
-				wingColor = new Color(180, 30, 0);
-			} else {
-				wingColor = new Color(140, 20, 0);
-			}
+		if (phase == 2) {
+			wingColor = new Color(180, 30, 0);
+		} else {
+			wingColor = new Color(140, 20, 0);
+		}
 		Color wingEdge = new Color(255, 100, 0, 160);
 
 		// Left wing
@@ -366,11 +368,11 @@ public class FireDemonBoss extends Enemy {
 
 	private void drawBody(Graphics2D g, int cx, int cy) {
 		Color bodyBase;
-			if (phase == 2) {
-				bodyBase = new Color(200, 40, 0);
-			} else {
-				bodyBase = new Color(160, 30, 0);
-			}
+		if (phase == 2) {
+			bodyBase = new Color(200, 40, 0);
+		} else {
+			bodyBase = new Color(160, 30, 0);
+		}
 		Color bodyShad = new Color(80, 10, 0);
 
 		// Torso
@@ -399,11 +401,11 @@ public class FireDemonBoss extends Enemy {
 
 	private void drawHead(Graphics2D g, int cx, int cy) {
 		Color headColor;
-			if (phase == 2) {
-				headColor = new Color(210, 50, 0);
-			} else {
-				headColor = new Color(175, 35, 0);
-			}
+		if (phase == 2) {
+			headColor = new Color(210, 50, 0);
+		} else {
+			headColor = new Color(175, 35, 0);
+		}
 		// Skull-like head
 		g.setColor(headColor);
 		g.fillOval(cx - 30, cy - 75, 60, 55);
@@ -428,11 +430,11 @@ public class FireDemonBoss extends Enemy {
 	private void drawHorns(Graphics2D g, int cx, int cy) {
 		Color hornBase = new Color(80, 10, 0);
 		Color hornGlow;
-			if (phase == 2) {
-				hornGlow = new Color(255, 60, 0);
-			} else {
-				hornGlow = new Color(255, 140, 0);
-			}
+		if (phase == 2) {
+			hornGlow = new Color(255, 60, 0);
+		} else {
+			hornGlow = new Color(255, 140, 0);
+		}
 
 		// Left horn
 		int[] hx1 = { cx - 25, cx - 45, cx - 18 };
@@ -459,11 +461,11 @@ public class FireDemonBoss extends Enemy {
 
 	private void drawEyes(Graphics2D g, int cx, int cy) {
 		Color glowColor;
-			if (phase == 2) {
-				glowColor = new Color(255, 255, 0, 140);
-			} else {
-				glowColor = new Color(255, 160, 0, 120);
-			}
+		if (phase == 2) {
+			glowColor = new Color(255, 255, 0, 140);
+		} else {
+			glowColor = new Color(255, 160, 0, 120);
+		}
 		g.setColor(glowColor);
 		g.fillOval(cx - 22, cy - 65, 14, 10);
 		g.fillOval(cx + 8, cy - 65, 14, 10);
@@ -473,11 +475,11 @@ public class FireDemonBoss extends Enemy {
 		g.fillOval(cx + 9, cy - 64, 11, 8);
 
 		Color irisColor;
-			if (phase == 2) {
-				irisColor = new Color(255, 255, 0);
-			} else {
-				irisColor = new Color(255, 180, 0);
-			}
+		if (phase == 2) {
+			irisColor = new Color(255, 255, 0);
+		} else {
+			irisColor = new Color(255, 180, 0);
+		}
 		g.setColor(irisColor);
 		g.fillOval(cx - 18, cy - 62, 7, 6);
 		g.fillOval(cx + 11, cy - 62, 7, 6);
@@ -519,11 +521,11 @@ public class FireDemonBoss extends Enemy {
 
 		double pct = (double) bossCurrHp / bossMaxHp;
 		Color fillColor;
-			if (phase == 2) {
-				fillColor = new Color(255, 60, 0);
-			} else {
-				fillColor = new Color(220, 100, 0);
-			}
+		if (phase == 2) {
+			fillColor = new Color(255, 60, 0);
+		} else {
+			fillColor = new Color(220, 100, 0);
+		}
 		g.setColor(fillColor);
 		g.fillRoundRect(xPos, yPos, (int) (barW * pct), barH, 4, 4);
 
@@ -535,11 +537,11 @@ public class FireDemonBoss extends Enemy {
 		g.setColor(Color.WHITE);
 		FontMetrics fm = g.getFontMetrics();
 		String label;
-			if (phase == 2) {
-				label = BOSS_NAME + "  🔥 INFERNO";
-			} else {
-				label = BOSS_NAME;
-			}
+		if (phase == 2) {
+			label = BOSS_NAME + "  🔥 INFERNO";
+		} else {
+			label = BOSS_NAME;
+		}
 		g.drawString(label, cx - fm.stringWidth(label) / 2, yPos - 4);
 	}
 

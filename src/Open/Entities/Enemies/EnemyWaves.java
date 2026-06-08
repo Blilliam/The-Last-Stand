@@ -50,9 +50,12 @@ public class EnemyWaves {
 	}
 
 	public double getDifficultyMult() {
-		return (1.0 + (tickCounter / 1800.0) * 0.1) * gameObj.getMap().getStage()
-				* (Math.pow(gameObj.getDifficulty().ordinal(), 2) * 0.5 + 1.0); // Faster scaling with stage and
-																				// difficulty
+		return (1.0 + (tickCounter / 1800.0) * 0.1) * gameObj.getMap().getStage() * gameObj.getDifficulty().ordinal(); // Faster
+																														// scaling
+																														// with
+																														// stage
+																														// and
+		// difficulty
 	}
 
 	public void update() {
@@ -63,7 +66,7 @@ public class EnemyWaves {
 		credits += creditGainRate * gameObj.getMap().getStage();
 
 		if (tickCounter % 600 == 0) {
-			creditGainRate += 0.03 * gameObj.getMap().getStage(); // Faster ramp up
+			creditGainRate += 0.03 * gameObj.getMap().getStage() * Math.pow(gameObj.getDifficulty().ordinal(), 2); // Faster ramp up
 		}
 
 		// Try to spawn as soon as we can afford any unit
@@ -120,5 +123,17 @@ public class EnemyWaves {
 			spendLimit -= selected.cost;
 			spawnedCount++;
 		}
+	}
+
+	public void setTickCounter(int ticks) {
+		this.tickCounter = ticks;
+	}
+
+	public void setCredits(double credits) {
+		this.credits = credits;
+	}
+
+	public void setCreditGainRate(double rate) {
+		this.creditGainRate = rate;
 	}
 }

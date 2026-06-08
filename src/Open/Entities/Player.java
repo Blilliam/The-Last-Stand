@@ -14,7 +14,7 @@ import java.util.HashMap;
 import java.util.Map;
 
 import Open.Artifacts.ArtifactManager;
-import Open.Artifacts.Legendary.Magnet;
+import Open.Artifacts.Common.TurboSocks;
 import Open.Entities.Enemies.Enemy;
 import Open.Entities.Interactible.Portal;
 import Open.Entities.Interactible.Teleporter;
@@ -44,6 +44,7 @@ public class Player extends Entity {
 	private int fogVisibility = 800;
 
 	private int baseMaxHp;
+	private int baseSpeed = 6;
 	private int kills;
 	private int expNeededToUpgrade = 10;
 	private int currExp;
@@ -68,11 +69,11 @@ public class Player extends Entity {
 	public Player(GameObject gameObj) {
 		super(gameObj);
 		setArtifactManager(new ArtifactManager(gameObj));
-		// artifactManager.addArtifact(new Magnet(gameObj));
+		 
 //		artifactManager.addArtifact(new Anvil(gameObj));
 
 //		for (int i = 0; i < 300; i++) {
-//			artifactManager.addArtifact(new Watch(gameObj));
+//			artifactManager.addArtifact(new TurboSocks(gameObj));
 //		}
 		this.gold = 0;
 
@@ -91,7 +92,7 @@ public class Player extends Entity {
 		x = gameObj.getMap().HEIGHT / 2;
 		y = gameObj.getMap().WIDTH / 2;
 
-		speed = 6;
+		speed = getSpeed();
 		isRight = true;
 
 		this.width = 70;
@@ -286,8 +287,8 @@ public class Player extends Entity {
 		if (length > 0) {
 			dx /= length;
 			dy /= length;
-			x += dx * speed;
-			y += dy * speed;
+			x += dx * getSpeed();
+			y += dy * getSpeed();
 		}
 
 		if (x < 0) {
@@ -607,8 +608,9 @@ public class Player extends Entity {
 				{ "Proj Speed", String.format("+%.0f%%", bookProjSpd * 100), projSpeedFlag },
 				{ "Size", String.format("+%.0f%%", bookSize * 100), sizeFlag }, { "§ SURVIVAL", null, 0 },
 				{ "Max HP", String.format("%.0f", maxHpVal), 1 },
-				{ "HP Bonus", String.format("+%.0f flat  +%.0f%%", artifactFlatHp + bookHp, artifactPctHp * 100),
-						hpFlag },
+			{ "HP Bonus", String.format("+%.0f flat  +%.0f%%", artifactFlatHp + bookHp, artifactPctHp * 100),
+					hpFlag },
+			{ "Speed Bonus", String.format("+%.0f%%", artifactManager.getBonusSpeed() * 100), 1 },
 				{ "iFrames", "+" + extraIframes, iframesFlag },
 				{ "Reflect", String.format("%.0f%%", reflectChance * 100), reflectFlag }, { "§ UTILITY", null, 0 },
 				{ "EXP Bonus", String.format("+%.0f%%", (artifactExp + bookExp) * 100), expFlag },
@@ -1108,6 +1110,10 @@ public class Player extends Entity {
 		return ownedBooks;
 	}
 
+	public int getSpeed() {
+		return (int) (baseSpeed * (artifactManager.getBonusSpeed() + 1));
+	}
+
 	public void startTimer() {
 		this.endTimer = 0;
 	}
@@ -1150,6 +1156,14 @@ public class Player extends Entity {
 
 	public void setGold(int gold) {
 		this.gold = gold;
+	}
+
+	public int getCurrExp() {
+		return currExp;
+	}
+
+	public void setCurrExp(int exp) {
+		this.currExp = exp;
 	}
 
 	public int getKills() {

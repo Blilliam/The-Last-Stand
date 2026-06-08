@@ -54,6 +54,7 @@ public class Assets {
 	public static BufferedImage CommonBatteryIcon;
 	public static BufferedImage CommonCloverIcon;
 	public static BufferedImage CommonMidasIcon;
+	public static BufferedImage CommonTurboSocksIcon;
 
 	public static BufferedImage UncommonBackPackIcon;
 	public static BufferedImage UncommonBeerIcon;
@@ -117,6 +118,7 @@ public class Assets {
 		CommonBatteryIcon = loadImage("Images/Artifacts/Common/Item_Battery.png");
 		CommonKeyIcon = loadImage("Images/Artifacts/Common/Item_Key.png");
 		CommonMidasIcon = loadImage("Images/Artifacts/Common/Item_Golden_Glove.png");
+		CommonTurboSocksIcon = loadImage("Images/Artifacts/Common/Item_Turbo_Socks.png");
 
 		UncommonBackPackIcon = loadImage("Images/Artifacts/Uncommon/Item_Backpack.png");
 		UncommonBeerIcon = loadImage("Images/Artifacts/Uncommon/Item_Beer.png");

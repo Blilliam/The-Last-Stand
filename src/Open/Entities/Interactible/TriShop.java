@@ -162,13 +162,12 @@ public class TriShop extends Interactible {
 			return;
 
 		int gold = gameObj.getPlayer().getGold();
-		double freeChance = gameObj.getPlayer().getArtifactManager().getPercentFreeChest();
 		int itemPrice = getItemPrice(idx);
 
-		boolean free = Math.random() < freeChance;
-		if (gold >= itemPrice || free) {
-			if (!free)
+		if (gold >= itemPrice) {
+			if (!(Math.random() < gameObj.getPlayer().getArtifactManager().getPercentFreeChest())) {
 				gameObj.getPlayer().setGold(gold - itemPrice);
+			}
 
 			int slotWorldX = slotWorldX(idx);
 			gameObj.getGroundItems().add(new WorldItem(gameObj, items[idx], slotWorldX, y - SHELF_H / 2));

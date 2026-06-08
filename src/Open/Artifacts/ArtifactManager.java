@@ -10,24 +10,24 @@ import java.util.Random;
 
 import Open.Artifacts.Common.Battery;
 import Open.Artifacts.Common.ChunkyOats;
-import Open.Artifacts.Common.Clover;
 import Open.Artifacts.Common.Key;
 import Open.Artifacts.Common.MidasHand;
+import Open.Artifacts.Common.TurboSocks;
 import Open.Artifacts.Common.Watch;
 import Open.Artifacts.Legendary.Anvil;
 import Open.Artifacts.Legendary.BigFork;
 import Open.Artifacts.Legendary.BigHammer;
 import Open.Artifacts.Legendary.Magnet;
+import Open.Artifacts.Rare.ChunkyRing;
+import Open.Artifacts.Rare.CreditCard;
+import Open.Artifacts.Rare.DemonSoul;
+import Open.Artifacts.Rare.Mirror;
 import Open.Artifacts.Uncommon.BackPack;
 import Open.Artifacts.Uncommon.Beer;
 import Open.Artifacts.Uncommon.BloodyDagger;
 import Open.Artifacts.Uncommon.EchoShard;
 import Open.Artifacts.Uncommon.GoldenShield;
 import Open.Artifacts.Uncommon.Kevin;
-import Open.Artifacts.Rare.ChunkyRing;
-import Open.Artifacts.Rare.CreditCard;
-import Open.Artifacts.Rare.DemonSoul;
-import Open.Artifacts.Rare.Mirror;
 import main.AppPanel;
 import main.GameObject;
 import main.MouseInput;
@@ -66,6 +66,7 @@ public class ArtifactManager {
 		commonPool.add(new Key(gameObj));
 		commonPool.add(new Battery(gameObj));
 		commonPool.add(new ChunkyOats(gameObj));
+		commonPool.add(new TurboSocks(gameObj));
 
 		uncommonPool.add(new Beer(gameObj));
 		uncommonPool.add(new BackPack(gameObj));
@@ -280,6 +281,12 @@ public class ArtifactManager {
 		double out = 0;
 		for (Artifact a : artifacts)
 			out += a.getPercentAttackSpeed();
+		return out;
+	}
+	public double getBonusSpeed() {
+		double out = 0;
+		for (Artifact a : artifacts)
+			out += a.getBonusSpeed();
 		return out;
 	}
 

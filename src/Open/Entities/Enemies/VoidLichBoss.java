@@ -235,6 +235,7 @@ public class VoidLichBoss extends Enemy {
 		} else {
 			size = 10f;
 		}
+		speed = (int) (speed * (1.0 + (gameObj.getWaves().getDifficultyMult() - 1.0) * 0.2));
 
 		double aimAngle = Math.atan2(gameObj.getPlayer().getY() - y, gameObj.getPlayer().getX() - x);
 

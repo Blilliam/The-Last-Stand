@@ -138,8 +138,11 @@ public class Chest extends Interactible {
 	}
 
 	public void open() {
-		if (gameObj.getPlayer().getGold() >= getCost() || Math.random() < gameObj.getPlayer().getArtifactManager().getPercentFreeChest()) {
-			gameObj.getPlayer().setGold(gameObj.getPlayer().getGold() - getCost());
+		if (gameObj.getPlayer().getGold() >= getCost()) {
+			if (!(Math.random() < gameObj.getPlayer().getArtifactManager().getPercentFreeChest())) {
+				gameObj.getPlayer().setGold(gameObj.getPlayer().getGold() - getCost());
+			}
+			
 			setState(ChestState.SHAKING);
 			
 			// Increment the global chest counter for price scaling

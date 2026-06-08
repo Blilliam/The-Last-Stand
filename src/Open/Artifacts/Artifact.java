@@ -140,5 +140,9 @@ public abstract class Artifact {
 	public void setRarity(ArtifactRarity rarity) {
 		this.rarity = rarity;
 	}
+	public double getBonusSpeed() {
+		// TODO Auto-generated method stub
+		return 0;
+	}
 
 }
