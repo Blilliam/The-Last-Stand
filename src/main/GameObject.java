@@ -57,6 +57,10 @@ public class GameObject {
 	private GameButton itemButton;
 
 	private GameSwitchButton hitBoxToggleButton;
+	
+	private GameSwitchButton musicToggleButton;
+
+	
 
 	private KeyboardInput keyH;
 
@@ -142,6 +146,9 @@ public class GameObject {
 
 		setHitBoxToggleButton(new GameSwitchButton(AppPanel.WIDTH / 2 - 100, AppPanel.HEIGHT / 2 + 200, 200, 50,
 				"HITBOX: ", false, new Color(60, 60, 60), Color.WHITE));
+		
+		setMusicToggleButton(new GameSwitchButton(AppPanel.WIDTH / 2 - 100, AppPanel.HEIGHT / 2 + 250, 200, 50,
+				"MUSIC: ", true, new Color(60, 60, 60), Color.WHITE));
 
 		setItemButton(new GameButton(AppPanel.WIDTH / 2 - 100, AppPanel.HEIGHT / 2 + 210, 200, 50, "ITEMS", () -> {
 			state = stateItem;
@@ -687,4 +694,11 @@ public class GameObject {
 		this.itemButton = itemButton;
 	}
 
+	public GameSwitchButton getMusicToggleButton() {
+		return musicToggleButton;
+	}
+
+	public void setMusicToggleButton(GameSwitchButton musicToggleButton) {
+		this.musicToggleButton = musicToggleButton;
+	}
 }

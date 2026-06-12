@@ -40,6 +40,12 @@ public class PauseState extends BaseState {
 		testerButton.update();
 		gameObj.getExitControlButton().update();
 		gameObj.getHitBoxToggleButton().update();
+		gameObj.getMusicToggleButton().update();
+		if (gameObj.getMusicToggleButton().getState() == false) {
+			gameObj.getMusicManager().setBGMVolume(0f);
+		} else {
+			gameObj.getMusicManager().setBGMVolume(1f);
+		}
 	}
 
 	@Override
@@ -63,5 +69,6 @@ public class PauseState extends BaseState {
 		testerButton.draw(g);
 		gameObj.getExitControlButton().draw(g);
 		gameObj.getHitBoxToggleButton().draw(g);
+		gameObj.getMusicToggleButton().draw(g);
 	}
 }

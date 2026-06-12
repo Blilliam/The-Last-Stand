@@ -23,8 +23,8 @@ public class Upgrades {
 
 	private EnumMap<WeaponTypes, Weapon> allWeapons;
 
-	private final int rectWidth = 900;
-	private final int rectHeight = 200;
+	private final int rectWidth = AppPanel.WIDTH * 2/3;
+	private final int rectHeight = AppPanel.HEIGHT / 5;
 
 	private List<PixelParticle> particles = new ArrayList<>();
 	private float flashAlpha = 0f;
@@ -386,7 +386,9 @@ public class Upgrades {
 			rerollButton.draw(g);
 
 		// Particles
-		for (PixelParticle p : particles) {
+		
+		for (int i = 0; i < particles.size(); i ++) {
+			PixelParticle p = particles.get(i);
 			g.setColor(p.color);
 			g.fillRect((int) p.x, (int) p.y, p.size, p.size);
 		}

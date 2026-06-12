@@ -29,7 +29,10 @@ public class MusicManager {
 
 	public enum SFX {
 		LEVELUP("Audio/Effects/LevelUp.wav"), COINPICKUP("Audio/Effects/CoinPickUp.wav"),
-		DEATH("Audio/Effects/GameOver.wav");
+		DEATH("Audio/Effects/GameOver.wav"),
+//		OnEnemyHit("x"), //DO THIS
+//		OnPlayerHit("x"),
+		;
 
 		private final String path;
 
@@ -256,6 +259,11 @@ public class MusicManager {
 			fc.setValue(Math.max(min, Math.min(max, db)));
 		} catch (IllegalArgumentException ignored) {
 		}
+	}
+	
+	public void setBGMVolume(float v) {
+		setVolume(bgmClip, v);
+		setVolume(bossClip, v);
 	}
 
 	private float getVolume(Clip clip) {
