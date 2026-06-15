@@ -1,12 +1,10 @@
 package main;
 
 import java.io.File;
-import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.EnumMap;
-import java.util.Iterator;
-import java.util.List;
 import java.util.Map;
+import java.util.concurrent.ConcurrentLinkedQueue;
 
 import javax.sound.sampled.AudioFormat;
 import javax.sound.sampled.AudioInputStream;
@@ -16,8 +14,8 @@ import javax.sound.sampled.LineUnavailableException;
 import javax.sound.sampled.SourceDataLine;
 
 /**
- * High-performance, pure software audio mixer.
- * Bypasses native OS audio bottlenecks to support massive sound effects throughput.
+ * High-performance software mixer with Lock-Free Queueing and SFX De-duplication.
+ * Engineered to handle extreme sound effect spam without dropping framerates or glitching.
  */
 public class MusicManager {
 
@@ -44,16 +42,17 @@ public class MusicManager {
 		}
 	}
 
-	// Tracks simple sound clip array offsets in software memory
 	private static class SoundInstance {
-		final byte[] data;
+		byte[] data;
 		float volume;
 		int position = 0;
-		boolean finished = false;
+		boolean active = false;
 
-		SoundInstance(byte[] data, float volume) {
+		void setup(byte[] data, float volume) {
 			this.data = data;
 			this.volume = volume;
+			this.position = 0;
+			this.active = true;
 		}
 	}
 
@@ -70,9 +69,12 @@ public class MusicManager {
 	private static final String BGM_PATH = "Audio/Music/bgm.wav";
 	private static final String BOSS_PATH = "Audio/Music/boss.wav";
 	
-	// Standard software playback pipeline: 44.1kHz, 16-bit, Stereo, Signed, Little Endian
 	private static final AudioFormat FORMAT = new AudioFormat(44100f, 16, 2, true, false);
 	private static final int FADE_MS = 2000;
+	
+	private static final int MAX_SFX_VOICES = 10; 
+	// Max number of the EXACT same SFX allowed to play in a single 11.6ms mixing frame
+	private static final int MAX_DUPLICATES_PER_FRAME = 3; 
 
 	private float masterVolume = 0.5f;
 	private float sfxVolume = 1.0f;
@@ -81,7 +83,13 @@ public class MusicManager {
 	private Track currentTrack = Track.NONE;
 	private SourceDataLine line;
 	private final Map<SFX, byte[]> sfxDataMap = new EnumMap<>(SFX.class);
-	private final List<SoundInstance> activeSFX = new ArrayList<>();
+	
+	private final SoundInstance[] sfxPool = new SoundInstance[MAX_SFX_VOICES];
+	
+	// Lock-free queue to pass play requests from game thread to mixer thread instantly
+	private final ConcurrentLinkedQueue<SFX> sfxQueue = new ConcurrentLinkedQueue<>();
+	// Tracks duplicates inside a single mixing frame
+	private final Map<SFX, Integer> frameDuplicateCounter = new EnumMap<>(SFX.class);
 	
 	private MusicInstance bgmNode;
 	private MusicInstance bossNode;
@@ -96,7 +104,10 @@ public class MusicManager {
 	// ── Init ───────────────────────────────────────────────────────────────
 
 	public MusicManager() {
-		// 1. Stream data configurations entirely straight into memory
+		for (int i = 0; i < MAX_SFX_VOICES; i++) {
+			sfxPool[i] = new SoundInstance();
+		}
+
 		byte[] bgmBytes = loadAudioBytes(BGM_PATH);
 		byte[] bossBytes = loadAudioBytes(BOSS_PATH);
 		
@@ -110,7 +121,6 @@ public class MusicManager {
 			}
 		}
 
-		// 2. Open up ONE single high-speed native system stream
 		try {
 			DataLine.Info info = new DataLine.Info(SourceDataLine.class, FORMAT);
 			line = (SourceDataLine) AudioSystem.getLine(info);
@@ -121,25 +131,18 @@ public class MusicManager {
 			return;
 		}
 
-		// 3. Kick off our lightning-fast internal engine arithmetic loop
 		Thread mixerThread = new Thread(this::mixerLoop, "SoftwareAudioMixer");
 		mixerThread.setDaemon(true);
 		mixerThread.start();
 	}
 
+	/**
+	 * Ultra-fast, lock-free submission. Calling this 10,000 times a frame
+	 * will not stall your game loop at all.
+	 */
 	public void playSFX(SFX sfx) {
-		byte[] data = sfxDataMap.get(sfx);
-		if (data == null) return;
-
-		float volume = sfxVolume;
-		if (sfx == SFX.OnEnemyHit || sfx == SFX.OnPlayerHit) {
-			volume *= 0.1f; 
-		}
-
-		// Instant memory insertion — zero execution delay for your game logic loop
-		SoundInstance instance = new SoundInstance(data, volume);
-		synchronized (activeSFX) {
-			activeSFX.add(instance);
+		if (sfx != null) {
+			sfxQueue.add(sfx);
 		}
 	}
 
@@ -151,7 +154,6 @@ public class MusicManager {
 		}
 		try (AudioInputStream sourceStream = AudioSystem.getAudioInputStream(file)) {
 			AudioFormat sourceFormat = sourceStream.getFormat();
-			// Auto convert loaded audio into matching software bytes arrays layout
 			if (!sourceFormat.matches(FORMAT)) {
 				try (AudioInputStream convertedStream = AudioSystem.getAudioInputStream(FORMAT, sourceStream)) {
 					return convertedStream.readAllBytes();
@@ -168,24 +170,51 @@ public class MusicManager {
 	// ── Software Mixer Engine Loop ──────────────────────────────────────────
 
 	private void mixerLoop() {
-		// 2048 bytes buffer = 512 frames (~11.6ms chunks)
 		byte[] mixerBuffer = new byte[2048];
 		int framesToMix = mixerBuffer.length / 4; 
-		int[] mixBufferInt = new int[framesToMix * 2]; // Interleaved L/R calculations channels
+		int[] mixBufferInt = new int[framesToMix * 2];
 
 		float fadeStep = (float) framesToMix / (FORMAT.getSampleRate() * (FADE_MS / 1000f));
 
 		while (running) {
 			Arrays.fill(mixBufferInt, 0);
+			frameDuplicateCounter.clear();
 
-			// 1. Frame-accurate crossfade interpolation math without sleeping threads
+			// 1. Process the incoming lock-free queue and assign to voices
+			SFX incomingSfx;
+			while ((incomingSfx = sfxQueue.poll()) != null) {
+				// De-duplication check: limit identical sounds in this 11.6ms window
+				int count = frameDuplicateCounter.getOrDefault(incomingSfx, 0);
+				if (count >= MAX_DUPLICATES_PER_FRAME) {
+					continue; // Discard excessive duplicate spam
+				}
+				frameDuplicateCounter.put(incomingSfx, count + 1);
+
+				byte[] data = sfxDataMap.get(incomingSfx);
+				if (data == null) continue;
+
+				float volume = sfxVolume;
+				if (incomingSfx == SFX.OnEnemyHit || incomingSfx == SFX.OnPlayerHit) {
+					volume *= 0.1f; 
+				}
+
+				// Find available voice slot or drop if completely full
+				// (Dropping is cleaner than stealing when dealing with massive spam)
+				for (SoundInstance si : sfxPool) {
+					if (!si.active) {
+						si.setup(data, volume);
+						break;
+					}
+				}
+			}
+
+			// 2. Handle Music Crossfades
 			if (currentBgmVol < targetBgmVol) currentBgmVol = Math.min(targetBgmVol, currentBgmVol + fadeStep);
 			else if (currentBgmVol > targetBgmVol) currentBgmVol = Math.max(targetBgmVol, currentBgmVol - fadeStep);
 
 			if (currentBossVol < targetBossVol) currentBossVol = Math.min(targetBossVol, currentBossVol + fadeStep);
 			else if (currentBossVol > targetBossVol) currentBossVol = Math.max(targetBossVol, currentBossVol - fadeStep);
 
-			// 2. Mix Background Music Data
 			if (bgmNode != null && currentBgmVol > 0.001f) {
 				mixMusic(bgmNode, currentBgmVol * masterVolume, mixBufferInt);
 			}
@@ -193,40 +222,41 @@ public class MusicManager {
 				mixMusic(bossNode, currentBossVol * masterVolume, mixBufferInt);
 			}
 
-			// 3. Mix Concurrent Sound Effects 
-			synchronized (activeSFX) {
-				Iterator<SoundInstance> it = activeSFX.iterator();
-				while (it.hasNext()) {
-					SoundInstance si = it.next();
-					byte[] data = si.data;
-					float vol = si.volume;
+			// 3. Mix Active Channels
+			int activeCount = 0;
+			for (SoundInstance si : sfxPool) {
+				if (!si.active) continue;
+				activeCount++;
+				
+				byte[] data = si.data;
+				float vol = si.volume;
 
-					for (int i = 0; i < mixBufferInt.length; i += 2) {
-						if (si.position + 3 >= data.length) {
-							si.finished = true;
-							break;
-						}
-
-						// Assemble 16-bit little endian array values via standard bit shifts
-						int left = (data[si.position + 1] << 8) | (data[si.position] & 0xFF);
-						int right = (data[si.position + 3] << 8) | (data[si.position + 2] & 0xFF);
-
-						mixBufferInt[i] += (int) (left * vol);
-						mixBufferInt[i + 1] += (int) (right * vol);
-
-						si.position += 4;
+				for (int i = 0; i < mixBufferInt.length; i += 2) {
+					if (si.position + 3 >= data.length) {
+						si.active = false;
+						break;
 					}
 
-					if (si.finished) {
-						it.remove();
-					}
+					int left = (data[si.position + 1] << 8) | (data[si.position] & 0xFF);
+					int right = (data[si.position + 3] << 8) | (data[si.position + 2] & 0xFF);
+
+					mixBufferInt[i] += (int) (left * vol);
+					mixBufferInt[i + 1] += (int) (right * vol);
+
+					si.position += 4;
 				}
 			}
 
-			// 4. Mathematical Clamping (Fixes the ending audio crunch noise completely)
+			// 4. Dynamic Headroom Compression
+			float headroomScaler = 1.0f;
+			if (activeCount > 2) {
+				headroomScaler = 1.8f / (float) Math.sqrt(activeCount);
+			}
+
+			// 5. Mathematical Clamping and Formatting
 			for (int i = 0; i < mixBufferInt.length; i += 2) {
-				int left = mixBufferInt[i];
-				int right = mixBufferInt[i + 1];
+				int left = (int) (mixBufferInt[i] * headroomScaler);
+				int right = (int) (mixBufferInt[i + 1] * headroomScaler);
 
 				if (left > 32767) left = 32767;
 				else if (left < -32768) left = -32768;
@@ -241,7 +271,6 @@ public class MusicManager {
 				mixerBuffer[byteIdx + 3] = (byte) ((right >> 8) & 0xFF);
 			}
 
-			// Single unified output pipeline draw step
 			line.write(mixerBuffer, 0, mixerBuffer.length);
 		}
 		line.close();
@@ -251,7 +280,7 @@ public class MusicManager {
 		byte[] data = node.data;
 		for (int i = 0; i < mixBufferInt.length; i += 2) {
 			if (node.position + 3 >= data.length) {
-				node.position = 0; // Infinite loop resetting points
+				node.position = 0;
 			}
 
 			int left = (data[node.position + 1] << 8) | (data[node.position] & 0xFF);
